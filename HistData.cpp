@@ -39,8 +39,11 @@ HistData::HistData()
         stringstream line_s(line);
         string value;
 
-        // values to read
-        tm time;
+        // std:tm - Structure holding a calendar date and time broken down into its components.
+        tm date_time;
+        // object needed for unix time conversion...
+        time_t unix_time;
+
         float open, high, low, close;
         int count=0;
 
@@ -49,20 +52,12 @@ HistData::HistData()
         {
             stringstream value_s(value);
 
-            // std:tm - Structure holding a calendar date and time broken down into its components.
-            tm time;
-            // object needed for unix time conversion...
-            //time_t time;
-
-            // .imbue tells stringstream how to handle region specific formating like replacing '.' with ','
-            //value_s.imbue(std::locale("de_DE.utf-8"));
-
             switch(count)
             {
                 // get date
                 case 0:
                     // get_time reads dateformat from stringstream and returns 'time' as a pointer to a 'tm' object
-                    value_s >> get_time(&time, "%Y%m%d %H:%M:%S");
+                    value_s >> get_time(&date_time, "%Y%m%d %H:%M:%S");
                     if(value_s.fail()) {
                         cout << "parsing date failed\n";
                     }
@@ -87,8 +82,17 @@ HistData::HistData()
                 default:break;
             }
         }
+
+        // convert date_time to unix_time
+        // mktime adjusts datetime to localtime
+        //unix_time = mktime(&date_time);
+        // timegm adjusts datetime to gmt time (!according to SO timegm portability is limited!)
+        unix_time = timegm(&date_time);
+        long int unix = unix_time;
+        //cout << unix << endl;
+
         //pointer to Tick struct that goes into array
-        Tick* tick = new Tick(time, open, high, low, close);
+        Tick* tick = new Tick(date_time, open, high, low, close);
         // add pointer to Tick object to vector of historic prices
         hist_data.push_back(tick);
     }
