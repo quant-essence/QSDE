@@ -52,7 +52,6 @@ int OrderBook::OrderClose(int order_id, bool report)
     iterator1 != open_orders.end();
     iterator1++)
     {
-        cout << (*iterator1)->order_id << endl;
         if((*iterator1)->order_id == order_id)
         {
             try{
@@ -62,13 +61,7 @@ int OrderBook::OrderClose(int order_id, bool report)
             catch (int e){
                 cout << "*** Error deleting from position " << order_id << " ***" << endl;
             }
-
-            /*
-            open_orders.remove(*iterator1);
-            if(report)
-                cout << "OrderClose(): closed order" << order_id << endl;*/
         }
-        //cout << "closed order" << order_id << endl;
     }
 
     return order_id;
