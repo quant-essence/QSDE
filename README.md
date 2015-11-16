@@ -1,5 +1,5 @@
 # QSDE
-High performance quantitative developement engine:
+High performance quantitative development engine:
 - offers a complete environment to implement, evaluate and trade 
-  quantitaive trading strategies.
+  quantitative trading strategies.
 - written in C++ for high execution speed
