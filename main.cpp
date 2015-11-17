@@ -31,6 +31,7 @@ int main()
         << data->GetClose(i) << endl;
     }*/
 
+
     /*
      * SETUP ENVIRONMENT
      * */
