@@ -41,7 +41,9 @@ int main()
     order_book->OrderClose(123,true);
     order_book->OrdersPrint();
 
-    // free memory of object
+
+
+    // free memory of objects
     delete(data);
     delete(order_book);
 

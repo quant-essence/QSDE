@@ -4,7 +4,6 @@
  * modify 'OpenOrder' objects.
  * */
 
-
 #include "OrderBook.h"
 
 OrderBook::OrderBook() {}
@@ -26,10 +25,15 @@ int OrderBook::OrderOpen(int order_type, int order_id,
     open_order->open_time = open_time;
 
     // add open_order as first element in list
-    open_orders.push_front(open_order);
-
-    if(report)
-        cout << "OrderOpen(): added order#" << order_id << endl;
+    try{
+        open_orders.push_front(open_order);
+        if(report)
+            cout << "OrderClose(): opened order: " << order_id << endl;
+    }
+    catch(int e){
+        cout << "*** Error opening order: " << order_id << " ***" << endl;
+        return -1;
+    }
 
     //
     return order_id;
@@ -56,10 +60,12 @@ int OrderBook::OrderClose(int order_id, bool report)
         {
             try{
                 open_orders.remove(*iterator1);
-                cout << "OrderClose(): closed order" << order_id << endl;
+                if(report)
+                    cout << "OrderClose(): closed order" << order_id << endl;
             }
-            catch (int e){
+            catch(int e){
                 cout << "*** Error deleting from position " << order_id << " ***" << endl;
+                //return -1;
             }
         }
     }
