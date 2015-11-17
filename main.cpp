@@ -40,7 +40,6 @@ int main()
     order_book->OrdersPrint();
     order_book->OrderClose(123,true);
     order_book->OrdersPrint();
-    // create OrderBook
 
     // free memory of object
     delete(data);
