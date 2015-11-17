@@ -9,6 +9,7 @@
 #include <iostream>
 #include <forward_list>
 #include <iomanip>
+#include "Tick.h"
 
 using namespace std;
 
@@ -18,10 +19,10 @@ class OrderBook
     {
         int order_type, order_id;
         float open_price, stoploss, takeprofit, order_profit;
-        tm open_time;
+        tm* open_time;
     };
 
-    forward_list<OpenOrder*> open_orders;
+    forward_list<OpenOrder*> order_book;
 
 public:
     // construct empty order book
@@ -30,13 +31,14 @@ public:
     int OrderOpen(
         int order_type, int order_id,
         float open_price, float stoploss, float takeprofit,
-        tm open_time,
+        tm* open_time,
         bool report);
     int OrderClose(int order_id, bool report);
-    int OrderModify(int order_id);
+    int OrderModify(int order_id, float open_price, float stoploss, float takeprofit, bool report);
     int OrderDelete(int order_id);
     int NrOfOpenOrders(int order_type);
-    void OrdersPrint();
+    void OrdersPrint(int order_id);
+    int OrderControl(Tick* tick, bool report);
 };
 
 #endif //QSDE_ORDERBOOK_H

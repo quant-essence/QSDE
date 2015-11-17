@@ -6,11 +6,16 @@
 
 #include "OrderBook.h"
 
-OrderBook::OrderBook() {}
+//°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+OrderBook::OrderBook()
+{
+    cout << "constructed: OrderBook()" << endl;
+}
 
+//°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
 int OrderBook::OrderOpen(int order_type, int order_id,
                          float open_price, float stoploss, float takeprofit,
-                         tm open_time,
+                         tm* open_time,
                          bool report)
 {
     // create new order
@@ -25,86 +30,211 @@ int OrderBook::OrderOpen(int order_type, int order_id,
     open_order->open_time = open_time;
 
     // add open_order as first element in list
-    try{
-        open_orders.push_front(open_order);
-        if(report)
-            cout << "OrderClose(): opened order: " << order_id << endl;
-    }
-    catch(int e){
-        cout << "*** Error opening order: " << order_id << " ***" << endl;
-        return -1;
-    }
+    //order_book.push_front(open_order);
 
+    try{
+        order_book.push_front(open_order);
+        if(report)
+            cout << "OrderOpen(): opened order: " << order_id << endl;
+    }
+    catch(const bad_alloc& ba){
+        cout << "*** Error opening order: " << order_id << " - bad allocation: " << ba.what() << " ***" << endl;
+    }
+    catch(exception &e) {
+        cout << "*** Error opening order: " << order_id << " - unhandled exception: " << e.what() << " ***" << endl;
+    }
+    catch(...){
+        cout << "*** Error opening order: " << order_id << " - unknown execption" << endl;
+    }
     //
     return order_id;
 }
 
-int OrderBook::OrderModify(int order_id)
+//°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+int OrderBook::OrderModify(int order_id, float open_price, float stoploss, float takeprofit, bool report)
 {
+    if(order_book.empty()){
+        cout << "OrderModify(): no open orders found" << endl;
+        return (-1);
+    }
+
+    // iterate list
+    forward_list<OrderBook::OpenOrder*>:: iterator i;
+
+    for(i = order_book.begin(); i != order_book.end(); ++i){
+        if((*i)->order_id == order_id){
+            if(open_price!=0) {
+                (*i)->open_price = open_price;
+                if(report)
+                    cout<<"OrderModify(): changed open_price:"<<open_price<<" of order#"<<order_id<<endl;
+            }
+            if(stoploss!=0) {
+                (*i)->stoploss = stoploss;
+                if(report)
+                    cout<<"OrderModify(): changed stoploss:"<<stoploss<<" of order#"<<order_id<<endl;
+            }
+            if(takeprofit!=0) {
+                (*i)->takeprofit = takeprofit;
+                if(report)
+                    cout<<"OrderModify(): changed takeprofit:"<<takeprofit<<" of order#"<<order_id<<endl;
+            }
+        }
+
+    }
     return order_id;
 }
 
+//°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
 int OrderBook::OrderClose(int order_id, bool report)
 {
-    if(report && open_orders.empty())
+    if(report && order_book.empty())
         cout << "OrderClose(): no open orders in OrderBook" << endl;
 
     // iterate list
-    forward_list<OrderBook::OpenOrder*>:: iterator iterator1;
+    forward_list<OrderBook::OpenOrder*>:: iterator i;
 
-    for(iterator1 = open_orders.begin();
-    iterator1 != open_orders.end();
-    iterator1++)
+    for(i=order_book.begin(); i!=order_book.end(); ++i)
     {
-        if((*iterator1)->order_id == order_id)
+        if((*i)->order_id == order_id)
         {
-            try{
-                open_orders.remove(*iterator1);
-                if(report)
-                    cout << "OrderClose(): closed order" << order_id << endl;
-            }
-            catch(int e){
-                cout << "*** Error deleting from position " << order_id << " ***" << endl;
-                //return -1;
-            }
+            // .remove() doesnt throw execptions
+            order_book.remove(*i);
+            if(report)
+                cout << "OrderClose(): closed order" << order_id << endl;
         }
     }
-
     return order_id;
 }
 
+//°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
 int OrderBook::OrderDelete(int order_id)
 {
     // iterate list
-
     return order_id;
 }
 
+//°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
 int OrderBook::NrOfOpenOrders(int order_type)
 {
-    if(open_orders.empty())
-        return 0;
+    if(order_book.empty())
+        return (-1);
 
-    // for performance reasons the forward list does not keep track of its size
-    // size can be obtained by the difference between begin & end
-    forward_list<OrderBook::OpenOrder*>::iterator first = open_orders.begin();
-    //forward_list<OrderBook::OpenOrder*>::iterator last = open_orders.end();
-    forward_list<OpenOrder*>::iterator last = open_orders.end();
-    return (int) distance(first,last);
+    int count=0;
+    // count all orders
+    if(order_type<1)
+    {
+        // for performance reasons the forward list does not keep track of its size
+        // size can be obtained by the difference between begin & end
+        forward_list<OrderBook::OpenOrder *>::iterator first = order_book.begin();
+        forward_list<OpenOrder *>::iterator last = order_book.end();
+        count = (int) distance(first, last);
+    }
+    else
+    {
+        forward_list<OrderBook::OpenOrder*>:: iterator i;
+        for(i=order_book.begin(); i!=order_book.end(); i++)
+        {
+            if((*i)->order_type==order_type)
+                count++;
+        }
+    }
+    return count;
 }
 
-void OrderBook::OrdersPrint()
+//°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+void OrderBook::OrdersPrint(int order_id)
 {
-    if(open_orders.empty())
+    if(order_book.empty())
         cout << "OrdersPrint(): no open orders found" << endl;
 
-    // iterate list
-    forward_list<OrderBook::OpenOrder*>:: iterator iterator1;
-
-    for(iterator1 = open_orders.begin();
-        iterator1 != open_orders.end();
-        iterator1++)
+    // print all orders
+    if(order_id<0)
     {
-        cout << "OrdersPrint(): order_id = " << (*iterator1)->order_id << endl;
+        // iterate list
+        forward_list<OrderBook::OpenOrder*>:: iterator i;
+        for(i=order_book.begin(); i!=order_book.end(); ++i)
+        {
+            cout << "OrdersPrint(all): " << endl <<
+            "order_id = "<<(*i)->order_id << endl <<
+            "order_type = "<<(*i)->order_type << endl <<
+            "open_time = "<<put_time((*i)->open_time, "%F %T")<< endl <<
+            "open_price = "<<(*i)->open_price<< endl <<
+            "stoploss = "<<(*i)->stoploss<< endl <<
+            "takeprofit = "<<(*i)->takeprofit<< endl <<
+            "open_price = "<<(*i)->open_price << endl;
+        }
+    }
+    else
+    {
+        forward_list<OpenOrder*>:: iterator i = order_book.begin();
+        while(i!=order_book.end())
+        {
+            if((*i)->order_id==order_id)
+            {
+                cout << "OrdersPrint("<<order_id<<"): " << endl <<
+                "order_id = "<<(*i)->order_id << endl <<
+                "order_type = "<<(*i)->order_type << endl <<
+                "open_time = "<<put_time((*i)->open_time, "%F %T")<< endl <<
+                "open_price = "<<(*i)->open_price<< endl <<
+                "stoploss = "<<(*i)->stoploss<< endl <<
+                "takeprofit = "<<(*i)->takeprofit<< endl <<
+                "open_price = "<<(*i)->open_price << endl;
+            }
+            ++i;
+        }
+    }
+}
+
+//°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+/*
+ * TODO: diese Funktion soll automatisch erkennen ob bei offenen/pending Buy/Sell Orders:
+ * - der TP/SL ausgelöst wurde
+ * - geschlossene orders in die OrderHistory überführt und aus dem OrderBook gelöscht werden
+ * - der open_price von pending Orders ausgelöst wurde, so dass diese geöffnet werden
+ * */
+int OrderBook::OrderControl(Tick* tick, bool report)
+{
+    if(order_book.empty())
+    {
+        if(report)
+            cout << "OrderControl(): no open orders found" << endl;
+        return (0);
+    }
+
+    int count=0;
+    forward_list<OpenOrder*>:: iterator i = order_book.begin();
+    while(i!=order_book.end())
+    {
+        // BUY ORDERS
+        // open order
+        if((*i)->order_type == 0)
+        {
+
+        }
+        // stop order
+        if((*i)->order_type == 2)
+        {
+
+        }
+        // pending order
+        if((*i)->order_type == 4)
+        {
+
+        }
+
+        // SELL ORDERS
+        if((*i)->order_type == 1)
+        {
+
+        }
+        if((*i)->order_type == 3)
+        {
+
+        }
+        if((*i)->order_type == 5)
+        {
+
+        }
+        ++i;
     }
 }

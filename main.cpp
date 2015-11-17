@@ -21,7 +21,6 @@ int main()
     cout << endl;*/
 
     // Test: print first 10 object values
-    /*
     for(size_t i=0; i<1; i++)
     {
         cout << put_time(data->GetTime(i), "%F %T") << " "
@@ -29,17 +28,21 @@ int main()
         << data->GetHigh(i) << " "
         << data->GetLow(i) << " "
         << data->GetClose(i) << endl;
-    }*/
+    }
 
     /*
      * SETUP ENVIRONMENT
      * */
     // create OrderBook for open orders
     OrderBook* order_book = new OrderBook();
-    order_book->OrderOpen(1,123,1.34,1.33,1.35,*data->GetTime(0),true);
-    order_book->OrdersPrint();
+
+    // TEST
+    order_book->OrderOpen(1,123,1.34,1.33,1.35,data->GetTime(0),true);
+    order_book->OrdersPrint(-1);
+    order_book->OrderModify(123,1.33,1.32,1.34,true);
+    order_book->OrdersPrint(123);
     order_book->OrderClose(123,true);
-    order_book->OrdersPrint();
+    order_book->OrdersPrint(0);
 
 
 

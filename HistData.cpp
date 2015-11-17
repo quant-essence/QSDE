@@ -99,6 +99,9 @@ HistData::HistData()
     file.close();
 }
 
+//°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+/* return pointer to tm object
+ * */
 tm* HistData::GetTime(size_t index)
 {
     return hist_data.at(index)->GetTime();

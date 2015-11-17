@@ -18,7 +18,7 @@ class HistData
 public:
     // constructor
     HistData();
-    // access methods
+    // getters
     size_t GetSize();
     tm* GetTime(size_t index);
     float GetOpen(size_t index);
