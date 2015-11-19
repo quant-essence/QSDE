@@ -7,6 +7,8 @@
       <sourceFolder url="file://$MODULE_DIR$/HistData.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/OrderBook.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/OrderBook.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/OrderHistory.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/OrderHistory.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Tick.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Tick.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
