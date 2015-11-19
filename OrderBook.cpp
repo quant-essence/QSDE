@@ -31,7 +31,6 @@ int OrderBook::OrderOpen(int order_type, int order_id,
 
     // add open_order as first element in list
     //order_book.push_front(open_order);
-
     try{
         order_book.push_front(open_order);
         if(report)
