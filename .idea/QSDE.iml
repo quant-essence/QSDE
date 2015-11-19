@@ -5,8 +5,6 @@
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/HistData.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/HistData.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/OpenOrder.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/OpenOrder.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/OrderBook.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/OrderBook.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Tick.cpp" isTestSource="false" />

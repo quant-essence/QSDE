@@ -21,7 +21,7 @@ int main()
     cout << endl;*/
 
     // Test: print first 10 object values
-    for(size_t i=0; i<1; i++)
+    for(size_t i=0; i<5; i++)
     {
         cout << put_time(data->GetTime(i), "%F %T") << " "
         << data->GetOpen(i) << " "
