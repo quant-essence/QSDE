@@ -10,6 +10,7 @@
 #include <forward_list>
 #include <iomanip>
 #include "Tick.h"
+#include "OrderHistory.h"
 
 using namespace std;
 
@@ -38,7 +39,7 @@ public:
     int OrderDelete(int order_id);
     int NrOfOpenOrders(int order_type);
     void OrdersPrint(int order_id);
-    int OrderControl(Tick* tick, bool report);
+    int OrderControl(OrderHistory* orderHistory, Tick* tick, bool report);
 };
 
 #endif //QSDE_ORDERBOOK_H

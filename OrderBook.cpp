@@ -53,26 +53,32 @@ int OrderBook::OrderOpen(int order_type, int order_id,
 int OrderBook::OrderModify(int order_id, float open_price, float stoploss, float takeprofit, bool report)
 {
     if(order_book.empty()){
-        cout << "OrderModify(): no open orders found" << endl;
+        if(report)
+            cout << "OrderModify(): no open orders found" << endl;
         return (-1);
     }
 
     // iterate list
     forward_list<OrderBook::OpenOrder*>:: iterator i;
 
-    for(i = order_book.begin(); i != order_book.end(); ++i){
-        if((*i)->order_id == order_id){
-            if(open_price!=0) {
+    for(i = order_book.begin(); i != order_book.end(); ++i)
+    {
+        if((*i)->order_id == order_id)
+        {
+            if(open_price!=0)
+            {
                 (*i)->open_price = open_price;
                 if(report)
                     cout<<"OrderModify(): changed open_price:"<<open_price<<" of order#"<<order_id<<endl;
             }
-            if(stoploss!=0) {
+            if(stoploss!=0)
+            {
                 (*i)->stoploss = stoploss;
                 if(report)
                     cout<<"OrderModify(): changed stoploss:"<<stoploss<<" of order#"<<order_id<<endl;
             }
-            if(takeprofit!=0) {
+            if(takeprofit!=0)
+            {
                 (*i)->takeprofit = takeprofit;
                 if(report)
                     cout<<"OrderModify(): changed takeprofit:"<<takeprofit<<" of order#"<<order_id<<endl;
@@ -86,12 +92,15 @@ int OrderBook::OrderModify(int order_id, float open_price, float stoploss, float
 //°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
 int OrderBook::OrderClose(int order_id, bool report)
 {
-    if(report && order_book.empty())
-        cout << "OrderClose(): no open orders in OrderBook" << endl;
+    if(order_book.empty())
+    {
+        if(report)
+            cout << "OrderClose(): no open orders in OrderBook" << endl;
+        return -1;
+    }
 
     // iterate list
     forward_list<OrderBook::OpenOrder*>:: iterator i;
-
     for(i=order_book.begin(); i!=order_book.end(); ++i)
     {
         if((*i)->order_id == order_id)
@@ -100,6 +109,7 @@ int OrderBook::OrderClose(int order_id, bool report)
             order_book.remove(*i);
             if(report)
                 cout << "OrderClose(): closed order" << order_id << endl;
+            break;
         }
     }
     return order_id;
@@ -119,8 +129,9 @@ int OrderBook::NrOfOpenOrders(int order_type)
         return (-1);
 
     int count=0;
+
     // count all orders
-    if(order_type<1)
+    if(order_type<0)
     {
         // for performance reasons the forward list does not keep track of its size
         // size can be obtained by the difference between begin & end
@@ -190,8 +201,9 @@ void OrderBook::OrdersPrint(int order_id)
  * - der TP/SL ausgelöst wurde
  * - geschlossene orders in die OrderHistory überführt und aus dem OrderBook gelöscht werden
  * - der open_price von pending Orders ausgelöst wurde, so dass diese geöffnet werden
+ * - FRAGE: wäre es besser, wenn das OrderHistory Object global wäre, so dass kein pointer übergeben werden muss?
  * */
-int OrderBook::OrderControl(Tick* tick, bool report)
+int OrderBook::OrderControl(OrderHistory* orderHistory, Tick* tick, bool report)
 {
     if(order_book.empty())
     {
@@ -208,6 +220,24 @@ int OrderBook::OrderControl(Tick* tick, bool report)
         // open order
         if((*i)->order_type == 0)
         {
+            if((*i)->takeprofit!=0 && tick->GetHigh() >= (*i)->takeprofit)
+            {
+                orderHistory->OrderAddToHist(
+                        (*i)->order_type, (*i)->order_id,
+                        (*i)->open_price, (*i)->stoploss, (*i)->takeprofit, (*i)->order_profit,
+                        (*i)->open_time, tick->GetTime(), report);
+                if(report)
+                    cout << "OrderControl(): closed BuyOrder #" << (*i)->order_id << " by TP " << endl;
+            }
+            if((*i)->stoploss != 0 && tick->GetLow() <= (*i)->stoploss)
+            {
+                orderHistory->OrderAddToHist(
+                        (*i)->order_type, (*i)->order_id,
+                        (*i)->open_price, (*i)->stoploss, (*i)->takeprofit,
+                        (*i)->open_time, tick->GetTime(), report);
+                if(report)
+                    cout << "OrderControl(): closed BuyOrder #" << (*i)->order_id << " by SL " << endl;
+            }
 
         }
         // stop order
